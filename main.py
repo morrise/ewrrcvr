@@ -58,7 +58,8 @@ def plot_functionaltests(df):
     st.write(displayresult)
     #displaypowertest = displayresult.to_frame()
     testresult = displayresult.transpose().to_dict()
-    st.write(pd.DataFrame.from_dict(testresult))
+    testresultpd = pd.DataFrame.from_dict(testresult)
+    st.write(testresultpd)
 
     for i in range(1, nooftemperature + 1):
         for ts in range(2,10):
