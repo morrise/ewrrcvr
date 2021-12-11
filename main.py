@@ -53,9 +53,8 @@ def plot_functionaltests(df):
 
     powertestresult = df.loc[ (df['TestID']==1) & (df['TestType']==2)]
     st.write(powertestresult)
-    displayresult = powertestresult[['SBV', 'TargSBV', 'Time', 'Date', 'TargTemp',
-       'OvenTemp', 'ToolTemp', 'SubbusV', 'SubbusI', '3.6V', '11V', '6.8V',
-       'DAC_0.0V', 'DAC_1.4V', 'DAC_2.2V', 'DAC_2.8V', 'DAC_4.3V']]
+    displayresult = powertestresult[['SBV', 'TargSBV', 'Time', 'Date', 'TargTemp','OvenTemp']] #, 'ToolTemp', 'SubbusV', 'SubbusI', '3.6V', '11V', '6.8V',
+       #'DAC_0.0V', 'DAC_1.4V', 'DAC_2.2V', 'DAC_2.8V', 'DAC_4.3V']]
     st.write(displayresult)
     #displaypowertest = displayresult.to_frame()
     st.write(displayresult.T)
