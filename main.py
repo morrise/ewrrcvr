@@ -3,10 +3,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 st.set_option('deprecation.showPyplotGlobalUse', False)
-header = st.beta_container()
-dataset = st.beta_container()
-features = st.beta_container()
-modelTraining = st.beta_container()
+header = st.container()
+dataset = st.container()
+features = st.container()
+modelTraining = st.container()
 columnset = set(['RunNumber', 'Mother_SN', 'Daugther_SN', 'Cycle', 'Segment', 'TestType',
                  'TestID', 'ELS', 'SBV', 'TargSBV', 'Time', 'Date', 'TargTemp',
                  'OvenTemp', 'ToolTemp', 'SubbusV', 'SubbusI', '3.6V', '11V', '6.8V',
@@ -55,8 +55,9 @@ def plot_functionaltests(df):
     displayresult = powertestresult[['SBV', 'TargSBV', 'Time', 'Date', 'TargTemp',
        'OvenTemp', 'ToolTemp', 'SubbusV', 'SubbusI', '3.6V', '11V', '6.8V',
        'DAC_0.0V', 'DAC_1.4V', 'DAC_2.2V', 'DAC_2.8V', 'DAC_4.3V']].set_index('TargTemp').T
+    st.write(displayresult.columns)
     #displaypowertest = displayresult.to_frame()
-    st.table(displayresult)
+    #st.table(displayresult)
 
     for i in range(1, nooftemperature + 1):
         for ts in range(2,10):
