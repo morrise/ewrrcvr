@@ -57,6 +57,8 @@ def plot_functionaltests(df):
        'DAC_0.0V', 'DAC_1.4V', 'DAC_2.2V', 'DAC_2.8V', 'DAC_4.3V']].set_index('TargTemp').T
     st.write(displayresult.columns)
     st.write(displayresult.shape)
+    st.write(powertestresult.columns)
+    st.write(powertestresult.shape)
     #displaypowertest = displayresult.to_frame()
     st.write(displayresult)
 
