@@ -57,7 +57,8 @@ def plot_functionaltests(df):
        #'DAC_0.0V', 'DAC_1.4V', 'DAC_2.2V', 'DAC_2.8V', 'DAC_4.3V']]
     st.write(displayresult)
     #displaypowertest = displayresult.to_frame()
-    st.write(displayresult.T)
+    #testresult = displayresult.transpose()
+    st.table(displayresult.transpose())
 
     for i in range(1, nooftemperature + 1):
         for ts in range(2,10):
