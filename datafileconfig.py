@@ -207,7 +207,7 @@ def getthisdata(data_rundf, segment, testid, testtype):
     thisdata = data_rundf.loc[(data_rundf['segment']==segment)
                             & (data_rundf['testid']==testid)
                             & (data_rundf['testtype']==testtype)]
-    st.write("segment",segment,"testid",testid,"testtype",testtype)
+    #st.write("segment",segment,"testid",testid,"testtype",testtype)
     #normalizaion calculation, if not required skip
     xlabel = str(test_dict[testid]['xlabel']).lower()
     refcolumns = [x.lower() for x in 
@@ -221,9 +221,9 @@ def getthisdata(data_rundf, segment, testid, testtype):
     calresultcolumn = [x.lower() for x in 
                        test_dict[testid]['calresultcolumn']]   
     lookupreference = test_dict[testid]['normalizedlookup']
-    st.write("lookupreference",lookupreference)
+    #st.write("lookupreference",lookupreference)
     bwcenter = thisdata.loc[thisdata[xlabel]==lookupreference]
-    st.write("bwcenter",bwcenter)
+    #st.write("bwcenter",bwcenter)
     # do require calculation on data
     for colcount in range (0,len(refcolumns)):
         newcol = str(normalizedcolumns[colcount])
