@@ -10,7 +10,7 @@ def main():
     readme_text = st.markdown(get_file_content_as_string("read.me"))
     # Download external dependencies.
     for filename in EXTERNAL_DEPENDENCIES.keys():
-        #download_file(filename)
+        download_file(filename)
         limit_all = pd.read_csv(filename)
         limit_all.columns = limit_all.columns.str.strip().str.lower()
         if not(all(x in dfc.limit_columns for x in limit_all.columns)):
