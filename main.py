@@ -1,166 +1,277 @@
 import streamlit as st
+import altair as alt
 import pandas as pd
-import matplotlib.pyplot as plt
+import numpy as np
+import os, urllib
+import datafileconfig as dfc
 
-st.set_option('deprecation.showPyplotGlobalUse', False)
-header = st.container()
-dataset = st.container()
-features = st.container()
-modelTraining = st.container()
-columnset = set(['RunNumber', 'Mother_SN', 'Daugther_SN', 'Cycle', 'Segment', 'TestType',
-                 'TestID', 'ELS', 'SBV', 'TargSBV', 'Time', 'Date', 'TargTemp',
-                 'OvenTemp', 'ToolTemp', 'SubbusV', 'SubbusI', '3.6V', '11V', '6.8V',
-                 'DAC_0.0V', 'DAC_1.4V', 'DAC_2.2V', 'DAC_2.8V', 'DAC_4.3V',
-                 'InFrequency', 'InAmp', 'InPhase', 'ExPhase', 'StPhase', 'NearAGC',
-                 'FarAGC', 'NearRMS', 'FarRMS'])
+def main():
+    # Render the readme as markdown using st.markdown.
+    readme_text = st.markdown(get_file_content_as_string("read.me"))
+    # Download external dependencies.
+    for filename in EXTERNAL_DEPENDENCIES.keys():
+        #download_file(filename)
+        limit_all = pd.read_csv(filename)
+        limit_all.columns = limit_all.columns.str.strip().str.lower()
+        if not(all(x in dfc.limit_columns for x in limit_all.columns)):
+            errorstr = "Limit columns were not found!"
+            raise ValueError(errorstr)
+        
+        limit_all['testname']=limit_all['testname'].astype('string')
+        limit_all['refcol']=limit_all['refcol'].str.strip().str.lower()
+        limit_all['checkcol']=limit_all['checkcol'].astype(str)
+        limit_all['checkcol']=limit_all['checkcol'].str.strip().str.lower()
 
-testnames = ["", "Power", "2MHz Band Width", "1MHz Band Width",
-             "2MHz Phase vs Amplitude", "1MHz Phase vs Amplitude",
-             "2MHz Corrected Amplitude", "1MHz corrected amplitude",
-             "2MHz Phase Linearity", "1MHz Phase Linearity"]
+        limit_testnames = limit_all['testname'].unique()
+        limit_testids = limit_all['testid'].unique()
+        limit_temperatures = limit_all['targtemp'].unique()
+        limit_testidandname = limit_all[['testname','testid']].drop_duplicates()
+        limit_testidandtype =  limit_all[['testid','testtype']].drop_duplicates()
+    # Once we have the dependencies, add a selector for the app mode on the sidebar.
+    #st.sidebar.title("What to do")
+    app_mode = st.sidebar.selectbox("Select RUN to run",
+        ["Show instructions", "Run the app"])
+    if app_mode == "Show instructions":
+        st.sidebar.success('To continue select "Run the app".')
+    elif app_mode == "Run the app":
+        uploadedFile = st.sidebar.file_uploader("Upload CSV data", type=['csv'], accept_multiple_files=False, key="fileUploader")
+        if uploadedFile is not None:
+            data_all = pd.read_csv(uploadedFile, error_bad_lines=True, warn_bad_lines=False, sep=',', quotechar='"')
+            data_all.columns = data_all.columns.str.strip()
 
-nooftemperature = []
-nooftests = []
-testkeys = []
+            if ((data_all.shape[1] != 34) | (data_all.shape[0] <= 2) | (dfc.columnset.issubset(data_all.columns) == False)):
+                st.error('CSV structure not recognized!')
+            else:
+                st.sidebar.success('Data file is recognized!')
+                readme_text.empty()
+                #if run_the_app():
 
+                data_all.columns = data_all.columns.str.strip().str.lower()
+                data_runs = data_all['runnumber'].unique()
+                data_segments = data_all['segment'].unique()
+                data_lastrun = data_runs[len(data_runs)-1]
+                data_rundf = data_all.loc[data_all['runnumber']==data_lastrun]
+                
+                data_temperatures = data_all['targtemp'].unique()
+                data_testtypes = data_rundf['testtype'].unique()
+                data_testids = data_rundf['testid'].unique()
+                data_segmentandtemp =data_rundf[['segment','targtemp']].drop_duplicates()
+                del data_all
+                del data_segments
+                del data_runs
+                
+                # Compare Data and Limits and get the coverage            
+                temperatures_can_check = dfc.comparelimitdata(limit_temperatures, data_temperatures) 
+                segments_can_check = data_segmentandtemp.loc[
+                                data_segmentandtemp['targtemp'].isin(temperatures_can_check)]
+                testids_can_check = dfc.comparelimitdata(limit_testids, data_testids)
 
-def plot_quicktest(powertest):
-    leftside = ['OvenTemp', 'ToolTemp', 'SubbusI']
-    rightside = ['SubbusV','11V', '6.8V','DAC_0.0V', 'DAC_1.4V', 'DAC_2.2V', 'DAC_2.8V', 'DAC_4.3V']
-    fig,ax1 = plt.subplots(figsize=(8,6))
-    ax2 = ax1.twinx()
-    for i in leftside:
-        ax1.plot(powertest['ELS'],powertest[i],label=i)
-    for i in rightside:
-        ax2.plot(powertest['ELS'],powertest[i],label=i)
-    ax1.set_xlabel("ELS")
-    ax1.set_ylabel("Temperature (C) / Current (mA)")
-    ax2.set_ylabel("Voltage (V)")
-    ax2.set_ylim(0,21)
-    ax1.legend()
-    ax2.legend(loc="right")
-    ax1.set_title("QUICK TEST PLOT")
-    #fig.tight_layout()
-    #pdf.savefig()  # saves the current figure into a pdf page
-    plt.show()
-    st.pyplot(fig)
+                if len(temperatures_can_check) == 0:
+                    errorstr = "No Temperature can be verified!"
+                    raise ValueError(errorstr)
 
-def plot_functionaltests(df):
-
-    #st.write(testkeys)
-    powertest = df.loc[(df['TestType'] == 1) & (df['TestID'] == 1)]
-    plot_quicktest(powertest)
-
-    powertestresult = df.loc[ (df['TestID']==1) & (df['TestType']==2)]
-    st.write(powertestresult)
-    displayresult = powertestresult[['SBV', 'TargSBV', 'Time', 'Date', 'TargTemp',
-       'OvenTemp','ToolTemp', 'SubbusV', 'SubbusI', '3.6V', '11V', '6.8V',
-       'DAC_0.0V', 'DAC_1.4V', 'DAC_2.2V', 'DAC_2.8V', 'DAC_4.3V']]
-    st.write(displayresult)
-    #displaypowertest = displayresult.to_frame()
-    #testresult = displayresult.transpose().to_dict()
-    #testresultpd = pd.DataFrame.from_dict(testresult)
-    #st.write(testresultpd)
-
-    for i in range(1, nooftemperature + 1):
-        for ts in range(2,10):
-            st.write(testnames[ts])
-            bwtestresult = df.loc[(df['TestID']==ts) & (df['TestType']==2)].copy()
-            bwtestresult.head()
-            if (ts in [2,3]):
-                xlabel = 'InFrequency'
-                refcolumns = ['NearRMS','FarRMS']
-                normalizedcolumns = ['NormalizedNearRMS','NormalizedFarRMS']
-                columntodisplay =['InFrequency','ExPhase','StPhase','NearAGC','FarAGC','NormalizedNearRMS','NormalizedFarRMS']
-                hlimits = []
-                llimits = []
-                yrange = [-2, 2]
-                calresultcolumn = []
-                if (ts == 2):
-                    lookupreference = 2000000.0
+                if len(testids_can_check) == 0:
+                    errorstr = "No testid can be verified!"
+                    raise ValueError(errorstr)
                 else:
-                    lookupreference = 1000000.0
-                xreverse = False
-            elif (ts in [4,5]):
-                xlabel = 'InAmp'
-                refcolumns = ['ExPhase','StPhase']
-                normalizedcolumns = ['NormalizedExPhase','NormalizedStPhase']
-                columntodisplay = ['InAmp','ExPhase', 'StPhase', 'NearAGC', 'FarAGC', 'NormalizedExPhase', 'NormalizedStPhase']
-                yrange = [-1, 1]
-                calresultcolumn = []
-                if (ts == 4):
-                    lookupreference = -65.0
-                else:
-                    lookupreference = -75.0
-                xreverse = True
-            elif (ts in [6,7]):
-                xlabel = 'InAmp'
-                refcolumns = ['NearRMS','FarRMS']
-                normalizedcolumns = ['CorrectedNearRMS','CorrectedFarRMS']
-                columntodisplay = ['InAmp', 'NearRMS', 'FarRMS', 'CorrectedNearRMS', 'CorrectedFarRMS']
-                calresultcolumn = ['Ratio']
-                yrange = [-1, 1]
-                if (ts == 4):
-                    lookupreference = -65.0
-                else:
-                    lookupreference = -75.0
-                xreverse = True
-            elif (ts in [8,9]):
-                xlabel = 'InPhase'
-                refcolumns = ['ExPhase','StPhase']
-                normalizedcolumns = ['NormalizedExPhase','NormalizedStPhase']
-                columntodisplay = ['InPhase','ExPhase', 'StPhase','NormalizedExPhase', 'NormalizedStPhase']
-                calresultcolumn = []
-                yrange = [-1, 1]
-                lookupreference = 0.0
-                xreverse = False
+                    testnames_can_check = limit_testidandname.loc[
+                        limit_testidandname['testid'].isin(testids_can_check)]['testname']
 
-            ExPhaseOffset = []
-            StPhaseOffset = []
-            currenttemp = temperatures.loc[temperatures['Segment']==i]
-            titletext = testnames[ts] + " at " + currenttemp['TargTemp'].to_string(index=False) + "degC"
+                #lastrun = df['RunNumber'].unique()[-1]
+                #st.write('Plotting for RUN :',data_lastrun)
+                del data_lastrun
+                #powertest = data_rundf.loc[(data_rundf['testtype'] == 1) & (data_rundf['testid'] == 1)]
+                #st.write(powertest)
+                #dfc.plot_quicktest(powertest)
+                
+                #get summary first
+                seglist = segments_can_check['segment']
+                resultlist= pd.DataFrame([],columns=seglist,index=testnames_can_check)
+                fullfaildata = pd.DataFrame([])
+                segcount = 0
+                for eachsegment in segments_can_check['segment']:
+                    testcount = 0
+                    for eachtestname in testnames_can_check:
+                        #print(eachtestname)
+                        thistestid = int(limit_testidandname.loc[
+                            limit_testidandname['testname']==eachtestname,'testid'])
+                        thistargtemp =  int(data_segmentandtemp.loc[
+                            data_segmentandtemp['segment']==eachsegment,'targtemp'])
+                        thistesttype =  int(limit_testidandtype.loc[
+                            limit_testidandtype['testid']==thistestid,'testtype'])
+                        thislimit = dfc.getthislimit(limit_all, eachtestname, thistargtemp)
+                        thisdata = dfc.getthisdata(data_rundf, eachsegment,thistestid,thistesttype)
+                        checkcols = thislimit['checkcol'].unique()
+                        refcolumns = thislimit['refcol'].unique()
+                        refcolumn = refcolumns[0]
+                        testresult, finalresult, faildata = dfc.checkdata(checkcols, refcolumn, 
+                                                                    thislimit, thisdata)
+                        resultstr = ""
+                        if testresult: 
+                            resultstr = "pass"
+                        else: 
+                            resultstr = "fail"
+                        resultlist.loc[eachtestname,eachsegment] = resultstr
+                                        
+                st.sidebar.table(resultlist.style.set_table_styles(dfc.tablestyles).set_caption("Overall Result").apply(dfc.redcellfail,axis=None))
 
-            currentbw = bwtestresult.loc[bwtestresult['Segment']==i]
-            bwcenter = currentbw.loc[currentbw[xlabel]==lookupreference]
-            for colcount in range (0,len(refcolumns)):
-                currentbw[normalizedcolumns[colcount]]=currentbw[refcolumns[colcount]] - bwcenter.iloc[0][refcolumns[colcount]]
-            tabletodisplay = currentbw[columntodisplay].copy()
-            st.table(tabletodisplay.assign(hack='').set_index('hack'))
-            #st.table(tabletodisplay)
-            fig, ax1= plt.subplots(figsize=(8,4))
-            for colcount in range (0,len(refcolumns)):
-                ax1.plot(currentbw[xlabel], currentbw[normalizedcolumns[colcount]], label=normalizedcolumns[colcount]+str(i))
-            ax1.set_ylim(yrange[0],yrange[1])
-            ax1.legend()
-            ax1.grid()
-            ax1.set_title(titletext)
-            if (xreverse): plt.gca().invert_xaxis()
-            #pdf.savefig()
-            plt.show()
-            st.pyplot(fig)
+                temperaturetoselect = pd.Series(["All"]) \
+                    .append(data_segmentandtemp['segment'].astype(str)+ "-" + \
+                            data_segmentandtemp['targtemp'].astype(str)).tolist()
+                testtoselect = pd.Series(["ALL", "QuickTest"]) \
+                    .append(testnames_can_check).tolist()
+                #st.write(testtoselect)
 
-with dataset:
-    st.header("Upload ur test data '.csv' file!")
-    uploadedFile = st.file_uploader("Upload CSV data", type=['csv'], accept_multiple_files=False, key="fileUploader")
-    if uploadedFile is not None:
-        df = pd.read_csv(uploadedFile, error_bad_lines=True, warn_bad_lines=False, sep=',')
-        df.columns = df.columns.str.strip()
+                with st.sidebar.form("my_form"):
+                    temperatureselector = st.selectbox("Chose temperature", temperaturetoselect)
+                    testselector = st.selectbox("Choose the test",testtoselect)
+                    submitted = st.form_submit_button("Submit")
+                
+                if submitted:
+                    readme_text.empty()
+                    selectedtemperature = temperaturetoselect.index(temperatureselector)
+                    selectedtest =  testtoselect.index(testselector)
+                    #readme_text = st.write("temp", selectedtemperature, \
+                    #           "test", selectedtest) 
+                    
+                    if (temperaturetoselect.index(temperatureselector)==0):
+                        segments = data_segmentandtemp['segment']
+                    else:
+                        segments = [data_segmentandtemp.iloc[selectedtemperature-1,[0]][0]]
+                    st.write("segments selected",segments)
+                
+                    if (selectedtest==1):
+                        quicktest = data_rundf.loc[(data_rundf['testtype'] == 1) & (data_rundf['testid'] == 1)]
+                        #st.write(powertest)
+                        dfc.plot_quicktest(quicktest)
+                    else: 
+                        if (selectedtest==0): 
+                            tests = testnames_can_check
+                        else: 
+                            tests = [testselector]
+                        st.write("tests selected",tests)
+                        resultlist= pd.DataFrame([],columns=segments,index=tests)
+                        fullfaildata = pd.DataFrame()
+                        segcount = 0
+                        for eachsegment in segments:
+                            testcount = 0
+                            for eachtestname in tests:
+                                #print(eachtestname)
+                                thistestid = int(limit_testidandname.loc[
+                                    limit_testidandname['testname']==eachtestname,'testid'])
+                                thistargtemp =  int(data_segmentandtemp.loc[
+                                    data_segmentandtemp['segment']==eachsegment,'targtemp'])
+                                thistesttype =  int(limit_testidandtype.loc[
+                                    limit_testidandtype['testid']==thistestid,'testtype'])
+                                thislimit = dfc.getthislimit(limit_all, eachtestname, thistargtemp)
+                                thisdata = dfc.getthisdata(data_rundf, eachsegment,thistestid,thistesttype)
+                                checkcols = thislimit['checkcol'].unique()
+                                refcolumns = thislimit['refcol'].unique()
+                                st.write("refcolumns", refcolumns)
+                                if refcolumns.shape[0]==0:
+                                    refcolumn = pd.DataFrame
+                                else:
+                                    refcolumn = refcolumns[0]
+                                testresult, finalresult, faildata = dfc.checkdata(checkcols, refcolumn, 
+                                                                            thislimit, thisdata)
+                                resultstr = ""
+                                if testresult: 
+                                    resultstr = "pass"
+                                else: 
+                                    resultstr = "fail"
+                                resultlist.loc[eachtestname,eachsegment] = resultstr
+                                if fullfaildata.shape[0]==0:
+                                    fullfaildata = faildata
+                                else:
+                                    #print("merge")
+                                    fullfaildata = fullfaildata.append(faildata)
+                                    fullfaildata.reset_index()
+                                    #print(thistargtemp, "degC",eachtestname, resultstr)
+                                displayresult = dfc.displaydata(thisdata, thistestid, refcolumn, finalresult)
+                                if displayresult.shape[0] > 0: 
+                                    if thistestid != 1:
+                                        readme_text = st.table(displayresult.style.set_table_styles(dfc.tablestyles).apply(dfc.redrowfail,axis=1))
+                                    else: 
+                                        displayresult= displayresult.astype('string')
+                                        readme_text = st.table(displayresult.style \
+                                            .set_table_styles(dfc.tablestyles) \
+                                            .set_caption(eachtestname) \
+                                            .apply(dfc.redcellfail,axis=None))
+                                    readme_text = dfc.plotdata(eachsegment, displayresult, thistestid, eachtestname, refcolumns)
+                        
+                        readme_text =st.table(resultlist.style.set_table_styles(dfc.tablestyles).set_caption("Overall Result").apply(dfc.redcellfail,axis=None))
+                        fullfaildata = fullfaildata.dropna(axis='columns')
+                        if fullfaildata.shape[0] > 0:
+                            readme_text =st.table(fullfaildata.style.set_table_styles(dfc.tablestyles).set_caption("Fail Data"))
 
-        if ((df.shape[1] != 34) | (df.shape[0] <= 2) | (columnset.issubset(df.columns) == False)):
-            st.error('CSV structure not recognized!')
-        else:
-            st.success('All required columns were found!')
-            lastrun = df['RunNumber'].unique()[-1]
-            st.write('Plotting for RUN :',lastrun)
-            df = df.loc[df['RunNumber']==lastrun]
-            nooftemperature = df.nunique()[4]
-            nooftests = df.nunique()[6]
-            temperatures = df[['Segment','TargTemp']].drop_duplicates()
-            st.info("Test Temperatures")
-            styler = temperatures['TargTemp'].to_frame().T
-            st.dataframe(styler.assign(hack='').set_index('hack'))
-            st.write("Quick test include:", "yes" if df.nunique()[5] > 1 else "no")
-            st.write("Number of tests   :", df.nunique()[6])
-            testkeys = df['TestID'].value_counts().index.tolist()
-            testkeys.sort()
-            plot_functionaltests(df)
+
+def run_the_app():
+    # To make Streamlit fast, st.cache allows us to reuse computation across runs.
+    # In this common pattern, we download data from an endpoint only once.
+    #@st.cache
+    return True
+    
+    st.write("main")
+
+# Download a single file and make its content available as a string.
+@st.cache(show_spinner=False)
+def get_file_content_as_string(path):
+    url = 'https://raw.githubusercontent.com/morrise/limit/main/' + path
+    #url = 'http://localhost:8501/' + path
+    response = urllib.request.urlopen(url)
+    return response.read()#.decode("utf-8")
+
+# This file downloader demonstrates Streamlit animation.
+def download_file(file_path):
+    # Don't download the file twice. (If possible, verify the download using the file length.)
+    if os.path.exists(file_path):
+        if "size" not in EXTERNAL_DEPENDENCIES[file_path]:
+            return
+        elif os.path.getsize(file_path) == EXTERNAL_DEPENDENCIES[file_path]["size"]:
+            return
+
+    # These are handles to two visual elements to animate.
+    weights_warning, progress_bar = None, None
+    try:
+        weights_warning = st.warning("Downloading %s..." % file_path)
+        progress_bar = st.progress(0)
+        with open(file_path, "wb") as output_file:
+            with urllib.request.urlopen(EXTERNAL_DEPENDENCIES[file_path]["url"]) as response:
+                length = int(response.info()["Content-Length"])
+                counter = 0.0
+                MEGABYTES = 2.0 ** 20.0
+                while True:
+                    data = response.read(8192)
+                    if not data:
+                        break
+                    counter += len(data)
+                    output_file.write(data)
+
+                    # We perform animation by overwriting the elements.
+                    weights_warning.warning("Downloading %s... (%6.2f/%6.2f MB)" %
+                        (file_path, counter / MEGABYTES, length / MEGABYTES))
+                    progress_bar.progress(min(counter / length, 1.0))
+
+    # Finally, we remove these visual elements by calling .empty().
+    finally:
+        if weights_warning is not None:
+            weights_warning.empty()
+        if progress_bar is not None:
+            progress_bar.empty()
+
+
+# Path to the Streamlit public S3 bucket
+
+# External files to download.
+EXTERNAL_DEPENDENCIES = {
+    "yolov3.weights": {
+        "url": "https://raw.githubusercontent.com/morrise/limit/main/EwrSolarSetLimit_Jan2022.csv",
+        "size": 59208
+    }
+}
+
+
+
+
+if __name__ == "__main__":
+    main()
