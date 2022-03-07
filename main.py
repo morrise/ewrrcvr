@@ -104,8 +104,7 @@ def main():
                         checkcols = thislimit['checkcol'].unique()
                         refcolumns = thislimit['refcol'].unique()
                         refcolumn = refcolumns[0]
-                        testresult, finalresult, faildata = dfc.checkdata(checkcols, refcolumn, 
-                                                                    thislimit, thisdata)
+                        testresult, finalresult, faildata = dfc.checkdata(checkcols, refcolumn, thislimit, thisdata)
                         resultstr = ""
                         if testresult: 
                             resultstr = "pass"
