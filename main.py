@@ -137,7 +137,7 @@ def main():
                         segments = data_segmentandtemp['segment']
                     else:
                         segments = [data_segmentandtemp.iloc[selectedtemperature-1,[0]][0]]
-                    st.write("segments selected",segments)
+                    #st.write("segments selected",segments)
                 
                     if (selectedtest==1):
                         quicktest = data_rundf.loc[(data_rundf['testtype'] == 1) & (data_rundf['testid'] == 1)]
@@ -148,7 +148,7 @@ def main():
                             tests = testnames_can_check
                         else: 
                             tests = [testselector]
-                        st.write("tests selected",tests)
+                        #st.write("tests selected",tests)
                         resultlist= pd.DataFrame([],columns=segments,index=tests)
                         fullfaildata = pd.DataFrame()
                         segcount = 0
