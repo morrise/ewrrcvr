@@ -166,7 +166,7 @@ def main():
                                 thisdata = dfc.getthisdata(data_rundf, eachsegment,thistestid,thistesttype)
                                 checkcols = thislimit['checkcol'].unique()
                                 refcolumns = thislimit['refcol'].unique()
-                                st.write("refcolumns", refcolumns)
+                                #st.write("refcolumns", refcolumns)
                                 if refcolumns.shape[0]==0:
                                     refcolumn = pd.DataFrame
                                 else:
