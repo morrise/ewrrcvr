@@ -35,7 +35,7 @@ testid2= {
                       'FarAGC','NormalizedExPhase','NormalizedStPhase','result'],
     "transpose" : False,
     "columntoplot" :['NormalizedExPhase','NormalizedStPhase','high','low'],
-    "yrange" : [-1, 1],
+    "yrange" : [-0.5, 0.5],
     "xlabel" : 'InFrequency',
     "xreverse" : False
 }
@@ -50,7 +50,7 @@ testid3= {
                       'FarAGC','NormalizedExPhase','NormalizedStPhase','result'],
     "transpose" : False,
     "columntoplot" :['NormalizedExPhase','NormalizedStPhase','high','low'],
-    "yrange" : [-1, 1],
+    "yrange" : [-0.5, 0.5],
     "xlabel" : 'InFrequency',
     "xreverse" : False
 }
@@ -231,7 +231,11 @@ def getthisdata(data_rundf, segment, testid, testtype):
         if (testid in [2,3,4,5]):
             thisdata.loc[:,newcol]=thisdata.loc[:,refcol] \
                             - bwcenter.iloc[0][refcol] 
-        elif (testid in [6,7,8,9]):
+        elif (testid in [6,7]):
+            thisdata.loc[:,newcol]=(thisdata.loc[:,xlabel] - lookupreference)\
+                            - thisdata.loc[:,refcol] \
+                            + bwcenter.iloc[0][refcol] \
+        elif (testid in [8,9]):
             thisdata.loc[:,newcol]=thisdata.loc[:,refcol] \
                             - bwcenter.iloc[0][refcol] \
                             - (thisdata.loc[:,xlabel] - lookupreference) 
