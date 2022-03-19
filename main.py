@@ -156,6 +156,7 @@ def main():
                             testcount = 0
                             for eachtestname in tests:
                                 #print(eachtestname)
+                                st.write(eachtestname, " - segment ", segments)
                                 thistestid = int(limit_testidandname.loc[
                                     limit_testidandname['testname']==eachtestname,'testid'])
                                 thistargtemp =  int(data_segmentandtemp.loc[
