@@ -234,7 +234,7 @@ def getthisdata(data_rundf, segment, testid, testtype):
         elif (testid in [6,7]):
             thisdata.loc[:,newcol]=(thisdata.loc[:,xlabel] - lookupreference)\
                             - thisdata.loc[:,refcol] \
-                            + bwcenter.iloc[0][refcol] \
+                            + bwcenter.iloc[0][refcol] 
         elif (testid in [8,9]):
             thisdata.loc[:,newcol]=thisdata.loc[:,refcol] \
                             - bwcenter.iloc[0][refcol] \
