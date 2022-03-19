@@ -156,11 +156,11 @@ def main():
                             testcount = 0
                             for eachtestname in tests:
                                 #print(eachtestname)
-                                st.write(eachtestname, " - segment ", segments)
                                 thistestid = int(limit_testidandname.loc[
                                     limit_testidandname['testname']==eachtestname,'testid'])
                                 thistargtemp =  int(data_segmentandtemp.loc[
                                     data_segmentandtemp['segment']==eachsegment,'targtemp'])
+                                st.write(eachtestname, " - segment ", eachsegment, " ", thistargtemp , " degC")
                                 thistesttype =  int(limit_testidandtype.loc[
                                     limit_testidandtype['testid']==thistestid,'testtype'])
                                 thislimit = dfc.getthislimit(limit_all, eachtestname, thistargtemp)
