@@ -243,7 +243,8 @@ columnset = set(['RunNumber', 'Mother_SN', 'Daugther_SN', 'Cycle', 'Segment', 'T
 testnames = ["ALL", "Quick Tests", "Power Test", "2MHz Band Width", "1MHz Band Width",
              "2MHz Phase vs Amplitude", "1MHz Phase vs Amplitude",
              "2MHz Corrected Amplitude", "1MHz corrected amplitude",
-             "2MHz Phase Linearity", "1MHz Phase Linearity"]
+             "2MHz Phase Linearity", "1MHz Phase Linearity", "2MHzPhaseOffset", "1MHzPhaseOffset",
+             "2MHzAGC","1MHzAGC","2MHzGain","1MHzGain"]
  
 tablestyles = [
     dict(selector="tr:hover",
