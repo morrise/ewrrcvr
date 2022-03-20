@@ -64,18 +64,18 @@ def main():
                 temperatures_can_check = dfc.comparelimitdata(limit_temperatures, data_temperatures) 
                 segments_can_check = data_segmentandtemp.loc[
                                 data_segmentandtemp['targtemp'].isin(temperatures_can_check)]
-                testids_can_check = dfc.comparelimitdata(limit_testids, data_testids)
+                #testids_can_check = dfc.comparelimitdata(limit_testids, data_testids)
 
                 if len(temperatures_can_check) == 0:
                     errorstr = "No Temperature can be verified!"
                     raise ValueError(errorstr)
 
-                if len(testids_can_check) == 0:
-                    errorstr = "No testid can be verified!"
-                    raise ValueError(errorstr)
-                else:
-                    testnames_can_check = limit_testidandname.loc[
-                        limit_testidandname['testid'].isin(testids_can_check)]['testname']
+                #if len(testids_can_check) == 0:
+                #    errorstr = "No testid can be verified!"
+                #    raise ValueError(errorstr)
+                #else:
+                #    testnames_can_check = limit_testidandname.loc[
+                #        limit_testidandname['testid'].isin(testids_can_check)]['testname']
 
                 #lastrun = df['RunNumber'].unique()[-1]
                 #st.write('Plotting for RUN :',data_lastrun)
@@ -91,10 +91,11 @@ def main():
                 segcount = 0
                 for eachsegment in segments_can_check['segment']:
                     testcount = 0
-                    for eachtestname in testnames_can_check:
+                    for thistestid in limit_testids:
+                        eachtestname = limit_testidandname.loc[limit_testidandname['testid']==thistestid]['testname']
                         #print(eachtestname)
-                        thistestid = int(limit_testidandname.loc[
-                            limit_testidandname['testname']==eachtestname,'testid'])
+                        #thistestid = int(limit_testidandname.loc[
+                        #    limit_testidandname['testname']==eachtestname,'testid'])
                         thistargtemp =  int(data_segmentandtemp.loc[
                             data_segmentandtemp['segment']==eachsegment,'targtemp'])
                         thistesttype =  int(limit_testidandtype.loc[
