@@ -266,7 +266,7 @@ def download_file(file_path):
 EXTERNAL_DEPENDENCIES = {
     "yolov3.weights": {
         "url": "https://raw.githubusercontent.com/morrise/limit/main/EwrSolarSetLimit_TrialMar2022.csv",
-        "size": 59208
+        "size": 61490
     }
 }
 
