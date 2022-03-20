@@ -64,7 +64,7 @@ def main():
                 temperatures_can_check = dfc.comparelimitdata(limit_temperatures, data_temperatures) 
                 segments_can_check = data_segmentandtemp.loc[
                                 data_segmentandtemp['targtemp'].isin(temperatures_can_check)]
-                #testids_can_check = dfc.comparelimitdata(limit_testids, data_testids)
+                testids_can_check = dfc.comparelimitdata(limit_testids, data_testids)
 
                 if len(temperatures_can_check) == 0:
                     errorstr = "No Temperature can be verified!"
