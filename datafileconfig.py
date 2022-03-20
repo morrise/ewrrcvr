@@ -147,6 +147,92 @@ testid9= {
     "xreverse" : False
 }
 
+testid10= {
+    "referencecolname" : 'InFrequency',
+    "normalizedrefcolumns" : ['ExPhase','StPhase'],
+    "normalizedcolumns" : ['NormalizedExPhase','NormalizedStPhase'],
+    "calresultcolumn" : [],
+    "normalizedlookup" : 2000000,
+    "columntodisplay" :['InFrequency','ExPhase','StPhase','result'],
+    "transpose" : False,
+    "columntoplot" :[],
+    "yrange" : [-0.5, 0.5],
+    "xlabel" : 'InFrequency',
+    "xreverse" : False
+}
+
+testid11= {
+    "referencecolname" : 'InFrequency',
+    "normalizedrefcolumns" : ['ExPhase','StPhase'],
+    "normalizedcolumns" : ['NormalizedExPhase','NormalizedStPhase'],
+    "calresultcolumn" : [],
+    "normalizedlookup" : 1000000,
+    "columntodisplay" :['InFrequency','ExPhase','StPhase','result'],
+    "transpose" : False,
+    "columntoplot" :[],
+    "yrange" : [-0.5, 0.5],
+    "xlabel" : 'InFrequency',
+    "xreverse" : False
+}
+
+testid12= {
+    "referencecolname" : 'InFrequency',
+    "normalizedrefcolumns" : ['ExPhase','StPhase'],
+    "normalizedcolumns" : ['NormalizedExPhase','NormalizedStPhase'],
+    "calresultcolumn" : [],
+    "normalizedlookup" : 2000000,
+    "columntodisplay" :['InFrequency','NearAGC','FarAGC','result'],
+    "transpose" : False,
+    "columntoplot" :[],
+    "yrange" : [-0.5, 0.5],
+    "xlabel" : 'InFrequency',
+    "xreverse" : False
+}
+
+testid13= {
+    "referencecolname" : 'InFrequency',
+    "normalizedrefcolumns" : ['ExPhase','StPhase'],
+    "normalizedcolumns" : ['NormalizedExPhase','NormalizedStPhase'],
+    "calresultcolumn" : [],
+    "normalizedlookup" : 1000000,
+    "columntodisplay" :['InFrequency','NearAGC','FarAGC','result'],
+    "transpose" : False,
+    "columntoplot" :[],
+    "yrange" : [-0.5, 0.5],
+    "xlabel" : 'InFrequency',
+    "xreverse" : False
+}
+
+testid14= {
+    "referencecolname" : 'InAmp',
+    "normalizedrefcolumns" : ['ExPhase','StPhase'],
+    "normalizedcolumns" : ['NormalizedExPhase','NormalizedStPhase'],
+    "calresultcolumn" : [],
+    "normalizedlookup" : -65,
+    "columntodisplay" :['InFrequency','NearAGC','FarAGC',
+                        'NearRMS','FarRMS','result'],
+    "transpose" : False,
+    "columntoplot" :[],
+    "yrange" : [-1, 1],
+    "xlabel" : 'InAmp',
+    "xreverse" : True
+}
+
+testid15= {
+    "referencecolname" : 'InAmp',
+    "normalizedrefcolumns" : ['ExPhase','StPhase'],
+    "normalizedcolumns" : ['NormalizedExPhase','NormalizedStPhase'],
+    "calresultcolumn" : [],
+    "normalizedlookup" : -75,
+    "columntoplot" :['NormalizedExPhase','NormalizedStPhase','high','low'],
+    "columntodisplay" :['InFrequency','NearAGC','FarAGC',
+                        'NearRMS','FarRMS','result'],
+    "transpose" : False,
+    "yrange" : [-1, 1],
+    "xlabel" : 'InAmp',
+    "xreverse" : True
+}
+
 columnset = set(['RunNumber', 'Mother_SN', 'Daugther_SN', 'Cycle', 'Segment', 'TestType',
                  'TestID', 'ELS', 'SBV', 'TargSBV', 'Time', 'Date', 'TargTemp',
                  'OvenTemp', 'ToolTemp', 'SubbusV', 'SubbusI', '3.6V', '11V', '6.8V',
@@ -187,7 +273,9 @@ tablestyles = [
     
 test_dict = {1: testid1, 2: testid2, 3: testid3, 
              4: testid4, 5: testid5, 6: testid6, 
-             7: testid7, 8: testid8, 9: testid9}
+             7: testid7, 8: testid8, 9: testid9,
+             10: testid10, 11:testid11, 12: testid12,
+             13: testid13, 13:testid14, 15: testid15}
 
 limit_columns = ['targtemp','testtype','testid', 
                  'refvalue', 'refcol','checkcol',
@@ -206,8 +294,12 @@ def getthislimit(limit_all, testname, targtemp):
 # calculate normalization
 # return data with calculated columns
 def getthisdata(data_rundf, segment, testid, testtype):
+    if (testid>9):
+        translatetestid  = testid - 7
+    else: 
+        translatetestid  = testid
     thisdata = data_rundf.loc[(data_rundf['segment']==segment)
-                            & (data_rundf['testid']==testid)
+                            & (data_rundf['testid']==translatetestid)
                             & (data_rundf['testtype']==testtype)]
     #st.write("segment",segment,"testid",testid,"testtype",testtype)
     #normalizaion calculation, if not required skip
