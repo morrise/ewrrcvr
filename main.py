@@ -8,8 +8,8 @@ import streamlit.components.v1 as components  # Import Streamlit
 
 def main():
     # Render the readme as markdown using st.markdown.
-    #readme_text = st.markdown(get_file_content_as_string("instruction.html"))
-    components.html(get_file_content_as_string("instruction.html"))
+    readme_text = st.markdown(get_file_content_as_string("instruction.html"))
+    #components.html(get_file_content_as_string("instruction.html"))
     # Download external dependencies.
     for filename in EXTERNAL_DEPENDENCIES.keys():
         download_file(filename)
