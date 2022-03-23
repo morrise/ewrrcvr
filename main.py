@@ -8,7 +8,7 @@ import streamlit.components.v1 as components  # Import Streamlit
 
 def main():
     # Render the readme as markdown using st.markdown.
-    readme_text = components.html("<Head>Instruction</head><body><p>Please Select the Drop Down in the Side Panel to RUN APP to run the app.<br>Drag the datafile or Browse the file to check.&nbsp;<br>Summary of result will be appeared.<br>In order to view graphics and other evaluation, select the segment and test in the drop downs and click Submit.<br>To Save the report save as a SINGLE FILE.</p></body></html>")
+    readme_text = components.iframe("https://morrise.github.io")
     #components.html(get_file_content_as_string("instruction.html"))
     # Download external dependencies.
     for filename in EXTERNAL_DEPENDENCIES.keys():
