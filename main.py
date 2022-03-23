@@ -8,57 +8,7 @@ import streamlit.components.v1 as components  # Import Streamlit
 
 def main():
     # Render the readme as markdown using st.markdown.
-    readme_text = st.markdown("<!DOCTYPE html>
-<html style="font-size: 16px;">
-  <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta charset="utf-8">
-    <meta name="keywords" content="">
-    <meta name="description" content="">
-    <meta name="page_type" content="np-template-header-footer-from-plugin">
-    <title>Instruction</title>
-    <link rel="stylesheet" href="nicepage.css" media="screen">
-<link rel="stylesheet" href="Instruction.css" media="screen">
-    <script class="u-script" type="text/javascript" src="jquery.js" defer=""></script>
-    <script class="u-script" type="text/javascript" src="nicepage.js" defer=""></script>
-    <meta name="generator" content="Nicepage 4.3.3, nicepage.com">
-    <link id="u-theme-google-font" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:100,100i,300,300i,400,400i,500,500i,700,700i,900,900i|Open+Sans:300,300i,400,400i,600,600i,700,700i,800,800i">
-    
-    
-    <script type="application/ld+json">{
-		"@context": "http://schema.org",
-		"@type": "Organization",
-		"name": ""
-}</script>
-    <meta name="theme-color" content="#478ac9">
-    <meta property="og:title" content="Instruction">
-    <meta property="og:type" content="website">
-  </head>
-  <body data-home-page="Instruction.html" data-home-page-title="Instruction" class="u-body u-overlap"><header class="u-clearfix u-header u-header" id="sec-94ce"><div class="u-clearfix u-sheet u-sheet-1"></div></header>
-    <section class="u-align-center u-clearfix u-section-1" id="sec-8520">
-      <div class="u-clearfix u-sheet u-sheet-1">
-        <p class="u-text u-text-1"> Please Select the Drop Down in the Side Panel to RUN APP to run the app.<br>Drag the datafile or Browse the file to check.&nbsp;<br>Summary of result will be appeared.<br>In order to view graphics and other evaluation, select the segment and test in the drop downs and click Submit.<br>To Save the report save as a SINGLE FILE.
-        </p>
-      </div>
-    </section>
-    
-    
-    <footer class="u-align-center u-clearfix u-footer u-grey-80 u-footer" id="sec-c430"><div class="u-clearfix u-sheet u-sheet-1">
-        <p class="u-small-text u-text u-text-variant u-text-1">Thank you for using the app.</p>
-      </div></footer>
-    <section class="u-backlink u-clearfix u-grey-80">
-      <a class="u-link" href="https://nicepage.com/website-templates" target="_blank">
-        <span>Website Templates</span>
-      </a>
-      <p class="u-text">
-        <span>created with</span>
-      </p>
-      <a class="u-link" href="" target="_blank">
-        <span>Website Builder Software</span>
-      </a>. 
-    </section>
-  </body>
-</html>")
+    readme_text = st.markdown("<Head>Instruction</head><body><p>Please Select the Drop Down in the Side Panel to RUN APP to run the app.<br>Drag the datafile or Browse the file to check.&nbsp;<br>Summary of result will be appeared.<br>In order to view graphics and other evaluation, select the segment and test in the drop downs and click Submit.<br>To Save the report save as a SINGLE FILE.</p></body></html>")
     #components.html(get_file_content_as_string("instruction.html"))
     # Download external dependencies.
     for filename in EXTERNAL_DEPENDENCIES.keys():
