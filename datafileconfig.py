@@ -2,7 +2,7 @@ import pandas as pd
 import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
-from IPython.display import display
+#from IPython.display import display
 #import gc
 pd.options.mode.chained_assignment = None
 
