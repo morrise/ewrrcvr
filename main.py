@@ -203,7 +203,7 @@ def main():
                                             .set_caption(eachtestname) \
                                             .apply(dfc.redcellfail,axis=None))
                                     readme_text = dfc.plotdata(eachsegment, displayresult, thistestid, eachtestname, refcolumns)
-                        
+                            components.html("<div style="break-after:page"></div>")
                         readme_text =st.table(resultlist.style.set_table_styles(dfc.tablestyles).set_caption("Overall Result").apply(dfc.redcellfail,axis=None))
                         fullfaildata = fullfaildata.dropna(axis='columns')
                         if fullfaildata.shape[0] > 0:
