@@ -42,7 +42,7 @@ def main():
             data_all.columns = data_all.columns.str.strip()
 
             if ((data_all.shape[1] != 34) | (data_all.shape[0] <= 2) | (dfc.columnset.issubset(data_all.columns) == False)):
-                st.error('CSV structure not recognized!')
+                st.error('CSV structure not recognized! or the data may not have field name. Please verify your test data!')
             else:
                 st.sidebar.success('Data file is recognized!')
                 readme_text.empty()
