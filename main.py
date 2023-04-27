@@ -70,10 +70,12 @@ def main():
 
                 if len(temperatures_can_check) == 0:
                     errorstr = "No Temperature can be verified!"
+                    st.write(errorstr)
                     raise ValueError(errorstr)
 
                 if len(testids_can_check) == 0:
                     errorstr = "No testid can be verified!"
+                    st.write(errorstr)
                     raise ValueError(errorstr)
                 else:
                    testnames_can_check = limit_testidandname.loc[
