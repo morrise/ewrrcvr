@@ -71,12 +71,12 @@ def main():
                 if len(temperatures_can_check) == 0:
                     errorstr = "No Limit available for this test temperature! Please verify your test data."
                     st.error(errorstr)
-                    #raise ValueError(errorstr)
+                    raise ValueError(errorstr)
 
                 if len(testids_can_check) == 0:
                     errorstr = "No limits available for the testid! Please verify your test data."
                     st.error(errorstr)
-                    #raise ValueError(errorstr)
+                    raise ValueError(errorstr)
                 else:
                    testnames_can_check = limit_testidandname.loc[
                        limit_testidandname['testid'].isin(testids_can_check)]['testname']
