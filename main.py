@@ -69,12 +69,12 @@ def main():
                 testids_can_check = dfc.comparelimitdata(limit_testids, data_testids)
 
                 if len(temperatures_can_check) == 0:
-                    errorstr = "No Temperature can be verified!"
+                    errorstr = "No Limit available for this test temperature! Please verify your test data."
                     st.write(errorstr)
                     raise ValueError(errorstr)
 
                 if len(testids_can_check) == 0:
-                    errorstr = "No testid can be verified!"
+                    errorstr = "No limits available for the testid! Please verify your test data."
                     st.write(errorstr)
                     raise ValueError(errorstr)
                 else:
