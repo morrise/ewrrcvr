@@ -38,7 +38,7 @@ def main():
     elif app_mode == "Run the app":
         uploadedFile = st.sidebar.file_uploader("Upload CSV data", type=['csv'], accept_multiple_files=False, key="fileUploader")
         if uploadedFile is not None:
-            data_all = pd.read_csv(uploadedFile, on_bad_lines='skip', sep=',', quotechar='"')
+            data_all = pd.read_csv(uploadedFile,error_bad_lines=False,warn_bad_lines=True, sep=',', quotechar='"')
             data_all.columns = data_all.columns.str.strip()
 
             if ((data_all.shape[1] != 34) | (data_all.shape[0] <= 2) | (dfc.columnset.issubset(data_all.columns) == False)):
