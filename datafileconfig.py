@@ -366,7 +366,7 @@ def checkdata(checkcols, refcolumn, thislimit, thisdata):
             faildata = checkpass
         else:
             #print("merge")
-            faildata = pd.concat(faildata, checkpass)
+            faildata = faildata.append(checkpass)
             faildata.reset_index()
         
         newdata = newdata[[indcheckcol+'result']]
