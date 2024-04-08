@@ -343,6 +343,7 @@ def getthisdata(data_rundf, segment, testid, testtype):
 def checkdata(checkcols, refcolumn, thislimit, thisdata): 
     testcount = 0
     faildata = pd.DataFrame([])
+    tmpfaildata = []
     currentdata = thisdata.copy(deep=False)
     currentdata.set_index(refcolumn, inplace=True)
     for indcheckcol in checkcols:
@@ -366,7 +367,7 @@ def checkdata(checkcols, refcolumn, thislimit, thisdata):
             faildata = checkpass
         else:
             #print("merge")
-            faildata = pd.concat(faildata, checkpass)
+            tmpfaildata = tmpfaildata.append(checkpass)
             faildata.reset_index()
         
         newdata = newdata[[indcheckcol+'result']]
@@ -376,6 +377,7 @@ def checkdata(checkcols, refcolumn, thislimit, thisdata):
         else: 
             #print("check pass 2")
             resultdata = resultdata.join(newdata)
+    faildata = pd.contact(tmpfaildata)
     #print(resultdata)
     finalresult = resultdata.copy()
     finalresult = finalresult.replace(np.nan, True)
