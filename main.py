@@ -121,11 +121,11 @@ def main():
                                         
                 st.sidebar.table(resultlist.style.set_table_styles(dfc.tablestyles).set_caption("Overall Result").apply(dfc.redcellfail,axis=None))
 
-                temperaturetoselect = pd.Series(["All"]) \
-                    .append(data_segmentandtemp['segment'].astype(str)+ "-" + \
-                            data_segmentandtemp['targtemp'].astype(str)).tolist()
-                testtoselect = pd.Series(["ALL", "QuickTest"]) \
-                    .append(testnames_can_check).tolist()
+                temperaturetoselect = pd.concat(pd.Series(["All"]), \
+                            (data_segmentandtemp['segment'].astype(str)+ "-" + \
+                            data_segmentandtemp['targtemp'].astype(str)).tolist())
+                testtoselect = pd.concat(pd.Series(["ALL", "QuickTest"]), \
+                        (testnames_can_check).tolist())
                 #st.write(testtoselect)
 
                 with st.sidebar.form("my_form"):
@@ -191,7 +191,7 @@ def main():
                                     fullfaildata = faildata
                                 else:
                                     #print("merge")
-                                    fullfaildata = fullfaildata.append(faildata)
+                                    fullfaildata = pd.concat(fullfaildata,faildata)
                                     fullfaildata.reset_index()
                                     #print(thistargtemp, "degC",eachtestname, resultstr)
                                 displayresult = dfc.displaydata(thisdata, thistestid, refcolumn, finalresult)
