@@ -377,7 +377,7 @@ def checkdata(checkcols, refcolumn, thislimit, thisdata):
         else: 
             #print("check pass 2")
             resultdata = resultdata.join(newdata)
-    faildata = pd.concat(tmpfaildata)
+    faildata = pd.contact(tmpfaildata)
     #print(resultdata)
     finalresult = resultdata.copy()
     finalresult = finalresult.replace(np.nan, True)
