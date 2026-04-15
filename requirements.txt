@@ -39,9 +39,5 @@ toml==0.10.2
 tornado==6.5.5
 typing-extensions==4.15.0
 tzdata==2026.1
-urllib3==2.6.3[2026-04-15 07:13:55.172393] 
+urllib3==2.6.3
 watchdog==6.0.0
-Python==3.10.20
-markdown-it-py==4.0.0
-mdurl==0.1.2
-pygments==2.20.0
