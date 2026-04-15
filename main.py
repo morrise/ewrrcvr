@@ -248,8 +248,8 @@ def run_the_app():
 # Download a single file and make its content available as a string.
 @st.cache_resource(show_spinner=False)
 def get_file_content_as_string(path):
-    #url = 'https://raw.githubusercontent.com/morrise/limit/main/' + path
-    url = 'http://localhost:8501/' + path
+    url = 'https://raw.githubusercontent.com/morrise/limit/main/' + path
+    #url = 'http://localhost:8501/' + path
     response = urllib.request.urlopen(url)
     return response.read()#.decode("utf-8")
 
