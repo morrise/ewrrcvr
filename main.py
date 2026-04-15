@@ -29,6 +29,11 @@ def main():
         limit_temperatures = limit_all['targtemp'].unique()
         limit_testidandname = limit_all[['testname','testid']].drop_duplicates()
         limit_testidandtype =  limit_all[['testid','testtype']].drop_duplicates()
+        # Debug: print all testidandname
+        print("=== limit_testidandname ===")
+        print(limit_testidandname.to_string(index=False))  # index=False for cleaner output
+        print(f"\nTotal unique testid-testname pairs: {len(limit_testidandname)}")
+
     # Once we have the dependencies, add a selector for the app mode on the sidebar.
     #st.sidebar.title("What to do")
     app_mode = st.sidebar.selectbox("Select RUN to run",
@@ -38,7 +43,11 @@ def main():
     elif app_mode == "Run the app":
         uploadedFile = st.sidebar.file_uploader("Upload CSV data", type=['csv'], accept_multiple_files=False, key="fileUploader")
         if uploadedFile is not None:
-            data_all = pd.read_csv(uploadedFile,error_bad_lines=False,warn_bad_lines=True, sep=',', quotechar='"')
+            data_all = pd.read_csv(uploadedFile,delimiter=",",
+                        quotechar='"',
+                        encoding="utf-8",
+                        on_bad_lines='warn', # Callable handler
+                        engine="python")
             data_all.columns = data_all.columns.str.strip()
 
             if ((data_all.shape[1] != 34) | (data_all.shape[0] <= 2) | (dfc.columnset.issubset(data_all.columns) == False)):
@@ -99,13 +108,26 @@ def main():
                     for eachtestname in testnames_can_check:
                     #for thistestid in limit_testids:
                         #eachtestname = limit_testidandname.loc[limit_testidandname['testid']==thistestid]['testname']
-                        #print(eachtestname)
-                        thistestid = int(limit_testidandname.loc[
-                            limit_testidandname['testname']==eachtestname,'testid'])
-                        thistargtemp =  int(data_segmentandtemp.loc[
-                            data_segmentandtemp['segment']==eachsegment,'targtemp'])
-                        thistesttype =  int(limit_testidandtype.loc[
-                            limit_testidandtype['testid']==thistestid,'testtype'])
+                        print("eachtestname", eachtestname)
+                        print("eachsegment", eachsegment)
+                        #print(limit_testidandname.loc[limit_testidandname['testname']==eachtestname,'testid'])
+                        #print(data_segmentandtemp.loc[data_segmentandtemp['segment']==eachsegment,'targtemp'])
+                        matches = limit_testidandname.loc[limit_testidandname['testname'] == eachtestname, 'testid']
+                        if len(matches) > 1:
+                            print(f"Warning: multiple testids found for {eachtestname}")
+                        thistestid = int(matches.iloc[0])
+                        print("thistestid", thistestid)
+                        matches2 = data_segmentandtemp.loc[data_segmentandtemp['segment']==eachsegment,'targtemp']
+                        if len(matches2) > 1:
+                            print(f"Warning: multiple target temperatures found for {eachsegment}")
+                        thistargtemp =  int(matches2.iloc[0])
+                        print("thistargtemp", thistargtemp)
+                        print(limit_testidandtype.loc[limit_testidandtype['testid']==thistestid,'testtype'])
+                        matches3 = limit_testidandtype.loc[limit_testidandtype['testid']==thistestid,'testtype']
+                        if len(matches3) > 1:
+                            print(f"Warning: multiple test types found for testid {thistestid}")    
+                        thistesttype = int(matches3.iloc[0])
+                        print("thistesttype", thistesttype)
                         thislimit = dfc.getthislimit(limit_all, eachtestname, thistargtemp)
                         thisdata = dfc.getthisdata(data_rundf, eachsegment,thistestid,thistesttype)
                         checkcols = thislimit['checkcol'].unique()
@@ -121,11 +143,14 @@ def main():
                                         
                 st.sidebar.table(resultlist.style.set_table_styles(dfc.tablestyles).set_caption("Overall Result").apply(dfc.redcellfail,axis=None))
 
-                temperaturetoselect = pd.Series(["All"]) \
-                            .append(data_segmentandtemp['segment'].astype(str)+ "-" + \
-                            data_segmentandtemp['targtemp'].astype(str)).tolist()
-                testtoselect = pd.Series(["ALL", "QuickTest"]) \
-                        .append(testnames_can_check).tolist()
+                combined = data_segmentandtemp['segment'].astype(str) \
+                            + "-" \
+                            + data_segmentandtemp['targtemp'].astype(str)
+                temperaturetoselect = pd.concat([pd.Series(["All"]), combined], ignore_index=True).tolist()
+                testtoselect = pd.concat([
+                    pd.Series(["ALL", "QuickTest"]),
+                    testnames_can_check
+                ], ignore_index=True).tolist()
                 #st.write(testtoselect)
 
                 with st.sidebar.form("my_form"):
@@ -162,14 +187,14 @@ def main():
                         for eachsegment in segments:
                             testcount = 0
                             for eachtestname in tests:
-                                #print(eachtestname)
+                                print("plotting for segment ", eachsegment, " test ", eachtestname)
                                 thistestid = int(limit_testidandname.loc[
-                                    limit_testidandname['testname']==eachtestname,'testid'])
+                                    limit_testidandname['testname']==eachtestname,'testid'].iloc[0])
                                 thistargtemp =  int(data_segmentandtemp.loc[
-                                    data_segmentandtemp['segment']==eachsegment,'targtemp'])
+                                    data_segmentandtemp['segment']==eachsegment,'targtemp'].iloc[0])
                                 st.write(eachtestname, " - segment ", eachsegment, " ", thistargtemp , " degC")
                                 thistesttype =  int(limit_testidandtype.loc[
-                                    limit_testidandtype['testid']==thistestid,'testtype'])
+                                    limit_testidandtype['testid']==thistestid,'testtype'].iloc[0])
                                 thislimit = dfc.getthislimit(limit_all, eachtestname, thistargtemp)
                                 thisdata = dfc.getthisdata(data_rundf, eachsegment,thistestid,thistesttype)
                                 checkcols = thislimit['checkcol'].unique()
@@ -191,7 +216,7 @@ def main():
                                     fullfaildata = faildata
                                 else:
                                     #print("merge")
-                                    fullfaildata = fullfaildata.append(faildata)
+                                    fullfaildata = pd.concat([fullfaildata, faildata], ignore_index=True)
                                     fullfaildata.reset_index()
                                     #print(thistargtemp, "degC",eachtestname, resultstr)
                                 displayresult = dfc.displaydata(thisdata, thistestid, refcolumn, finalresult)
@@ -221,10 +246,10 @@ def run_the_app():
     st.write("main")
 
 # Download a single file and make its content available as a string.
-@st.cache(show_spinner=False)
+@st.cache_resource(show_spinner=False)
 def get_file_content_as_string(path):
-    url = 'https://raw.githubusercontent.com/morrise/limit/main/' + path
-    #url = 'http://localhost:8501/' + path
+    #url = 'https://raw.githubusercontent.com/morrise/limit/main/' + path
+    url = 'http://localhost:8501/' + path
     response = urllib.request.urlopen(url)
     return response.read()#.decode("utf-8")
 
@@ -273,12 +298,9 @@ def download_file(file_path):
 EXTERNAL_DEPENDENCIES = {
     "yolov3.weights": {
         "url": "https://raw.githubusercontent.com/morrise/limit/main/EwrSolarSetLimit_Apr2023.csv",
-        "size": 61490
+        "size": 94101
     }
 }
-
-
-
 
 if __name__ == "__main__":
     main()
