@@ -4,11 +4,11 @@ import pandas as pd
 import numpy as np
 import os, urllib
 import datafileconfig as dfc
-import streamlit.components.v1 as components  # Import Streamlit
+import streamlit as st  # Import Streamlit
 
 def main():
     # Render the readme as markdown using st.markdown.
-    readme_text = components.iframe("https://morrise.github.io")
+    readme_text = st.iframe("https://morrise.github.io", width='stretch', height=600)
     #components.html(get_file_content_as_string("instruction.html"))
     # Download external dependencies.
     for filename in EXTERNAL_DEPENDENCIES.keys():
